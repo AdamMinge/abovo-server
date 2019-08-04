@@ -17,20 +17,30 @@ jwt = JWTManager(app)
 login_manager = LoginManager(app)
 
 
+def add_auth_resources():
+    from endpoints import auth
+    api.add_resource(auth.UserRegistration, '/registration')
+    api.add_resource(auth.UserLogin, '/login')
+    api.add_resource(auth.TokenRefresh, '/token/refresh')
+    api.add_resource(auth.UserTokens, '/tokens')
+    api.add_resource(auth.UserLogoutRefresh, '/logout/refresh')
+    api.add_resource(auth.UserLogoutAccess, '/logout/access')
+
+
+def add_user_resources():
+    from endpoints import user
+    api.add_resource(user.User, '/user/<string:username>')
+    api.add_resource(user.UsersCollection, '/users')
+
+
 if __name__ == "__main__":
-    from utils.blacklist_helpers import is_token_revoked
+    from utils import is_token_revoked
 
     @jwt.token_in_blacklist_loader
     def check_if_token_revoked(decoded_token):
         return is_token_revoked(decoded_token)
 
-    from endpoints.auth import *
-
-    api.add_resource(UserRegistration, '/registration')
-    api.add_resource(UserLogin, '/login')
-    api.add_resource(TokenRefresh, '/token/refresh')
-    api.add_resource(UserTokens, '/token')
-    api.add_resource(UserLogoutRefresh, '/logout/refresh')
-    api.add_resource(UserLogoutAccess, '/logout/access')
+    add_auth_resources()
+    add_user_resources()
 
     socketio.run(app)
