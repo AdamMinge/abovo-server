@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from flask_jwt_extended import jwt_refresh_token_required, get_jwt_identity, get_raw_jwt
-from utils.blacklist_helpers import revoke_token
+from utils import revoke_token
 
 
 class UserLogoutRefresh(Resource):

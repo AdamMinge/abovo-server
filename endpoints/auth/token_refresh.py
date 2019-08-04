@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from flask_jwt_extended import create_access_token, jwt_refresh_token_required, get_jwt_identity
-from utils.blacklist_helpers import add_token_to_database
+from utils import add_token_to_database
 from app import app
 
 

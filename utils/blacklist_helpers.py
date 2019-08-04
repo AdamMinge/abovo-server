@@ -2,6 +2,8 @@ from datetime import datetime
 from sqlalchemy.orm.exc import NoResultFound
 from flask_jwt_extended import decode_token
 from exceptions import TokenNotFound
+from models import TokenBlacklistModel
+from app import db
 
 
 def _epoch_utc_to_datetime(epoch_utc):
@@ -9,9 +11,6 @@ def _epoch_utc_to_datetime(epoch_utc):
 
 
 def add_token_to_database(encoded_token, identity_claim):
-    from models import TokenBlacklistModel
-    from app import db
-
     decoded_token = decode_token(encoded_token)
     jti = decoded_token['jti']
     token_type = decoded_token['type']
@@ -31,7 +30,6 @@ def add_token_to_database(encoded_token, identity_claim):
 
 
 def is_token_revoked(decoded_token):
-    from models import TokenBlacklistModel
     jti = decoded_token['jti']
     try:
         token = TokenBlacklistModel.query.filter_by(jti=jti).one()
@@ -40,39 +38,27 @@ def is_token_revoked(decoded_token):
         return True
 
 
-def get_user_tokens(user_identity):
-    from models import TokenBlacklistModel
-    return TokenBlacklistModel.query.filter_by(user_identity=user_identity).all()
-
-
-def revoke_token(token_id, user):
-    from models import TokenBlacklistModel
-    from app import db
-
+def revoke_token(decoded_token, user):
+    jti = decoded_token['jti']
     try:
-        token = TokenBlacklistModel.query.filter_by(id=token_id, user_identity=user).one()
+        token = TokenBlacklistModel.query.filter_by(jti=jti, user_identity=user).one()
         token.revoked = True
         db.session.commit()
     except NoResultFound:
-        raise TokenNotFound("Could not find the token {}".format(token_id))
+        raise TokenNotFound("Could not find the token {}".format(jti))
 
 
-def unrevoke_token(token_id, user):
-    from models import TokenBlacklistModel
-    from app import db
-
+def unrevoke_token(decoded_token, user):
+    jti = decoded_token['jti']
     try:
-        token = TokenBlacklistModel.query.filter_by(id=token_id, user_identity=user).one()
+        token = TokenBlacklistModel.query.filter_by(jti=jti, user_identity=user).one()
         token.revoked = False
         db.session.commit()
     except NoResultFound:
-        raise TokenNotFound("Could not find the token {}".format(token_id))
+        raise TokenNotFound("Could not find the token {}".format(jti))
 
 
 def prune_database():
-    from models import TokenBlacklistModel
-    from app import db
-
     now = datetime.now()
     expired = TokenBlacklistModel.query.filter(TokenBlacklistModel.expires < now).all()
     for token in expired:

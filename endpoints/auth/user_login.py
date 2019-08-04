@@ -1,19 +1,19 @@
 from flask_restful import Resource, reqparse
 from models import UserModel
 from flask_jwt_extended import create_access_token, create_refresh_token
-from utils.blacklist_helpers import add_token_to_database
+from utils import add_token_to_database
 from app import app
 
 
 login_perser = reqparse.RequestParser()
-login_perser.add_argument('username', help='This field cannot be blank', required=True)
-login_perser.add_argument('password', help='This field cannot be blank', required=True)
+login_perser.add_argument('username', type=str, help='This field cannot be blank', required=True)
+login_perser.add_argument('password', type=str, help='This field cannot be blank', required=True)
 
 
 class UserLogin(Resource):
     def post(self):
         data = login_perser.parse_args()
-        current_user = UserModel.find_by_username(data['username'])
+        current_user = UserModel.query.filter_by(username=data['username']).first()
 
         if not current_user:
             return {'message': 'User {} doesn\'t exist'.format(data['username'])}

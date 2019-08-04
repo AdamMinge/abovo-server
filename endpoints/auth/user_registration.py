@@ -1,21 +1,21 @@
 from flask_restful import Resource, reqparse
 from models.user import UserModel
 from flask_jwt_extended import create_access_token, create_refresh_token
-from utils.blacklist_helpers import add_token_to_database
+from utils import add_token_to_database
 from app import app, db
 
 
 register_perser = reqparse.RequestParser()
-register_perser.add_argument('username', help='This field cannot be blank', required=True)
-register_perser.add_argument('password', help='This field cannot be blank', required=True)
-register_perser.add_argument('email', help='This field cannot be blank', required=True)
+register_perser.add_argument('username', type=str, help='This field cannot be blank', required=True)
+register_perser.add_argument('password', type=str, help='This field cannot be blank', required=True)
+register_perser.add_argument('email', type=str, help='This field cannot be blank', required=True)
 
 
 class UserRegistration(Resource):
     def post(self):
         data = register_perser.parse_args()
 
-        if UserModel.find_by_username(data['username']):
+        if UserModel.query.filter_by(data['username']).first():
             return {'message': 'User {} already exists'.format(data['username'])}
 
         new_user = UserModel(
