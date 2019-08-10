@@ -1,0 +1,3 @@
+class ProjectPermissionNotExist(Exception):
+    pass
+

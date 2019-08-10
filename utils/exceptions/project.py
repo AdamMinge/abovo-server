@@ -1,0 +1,3 @@
+class ProjectDoesNotExist(Exception):
+    pass
+
