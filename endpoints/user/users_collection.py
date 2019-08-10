@@ -1,24 +1,13 @@
-from flask_restful import Resource, marshal_with, fields
-from models import UserModel
+from flask_restful import Resource
 from flask_jwt_extended import jwt_required
-from utils import paginate, meta_fields
-
-
-user_fields = {
-    "username": fields.String,
-    "email": fields.String,
-}
-
-
-users_list_fields = {
-    "items": fields.List(fields.Nested(user_fields)),
-    'meta': fields.Nested(meta_fields),
-}
+from utils.decorators import pagination
+from utils.model_fields import user_fields
+from utils.model_queries import user
 
 
 class UsersCollection(Resource):
     @jwt_required
-    @marshal_with(users_list_fields)
-    @paginate()
+    @pagination.marshal_with(user_fields)
+    @pagination.paginate()
     def get(self):
-        return UserModel.find_all()
+        return user.get_users()
