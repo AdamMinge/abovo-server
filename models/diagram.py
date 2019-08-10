@@ -4,18 +4,18 @@ from app import db
 class DiagramModel(db.Model):
     __tablename__ = 'Diagrams'
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    creationTime = db.Column(db.Date)
-    lastEditionTime = db.Column(db.Date)
-    projectId = db.Column(db.Integer, db.ForeignKey("Projects.id"))
+    diagram_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    creation_time = db.Column(db.Date, nullable=False)
+    last_edition_time = db.Column(db.Date, nullable=False)
+    project_id = db.Column(db.Integer, db.ForeignKey("Projects.project_id"), nullable=False)
 
-    def __init__(self, name, creationTime, lastEditionTime, projectId):
+    def __init__(self, name, creation_time, last_edition_time, project_id):
         self.name = name
-        self.creationTime = creationTime
-        self.lastEditionTime = lastEditionTime
-        self.projectId = projectId
+        self.creation_time = creation_time
+        self.last_edition_time = last_edition_time
+        self.project_id = project_id
 
     def __repr__(self):
-        return "<Diagram(name='{}', creationTime='{}', lastEditionTime={}, projectId={})>" \
-            .format(self.name, self.creationTime, self.lastEditionTime, self.projectId)
+        return "<Diagram(name='{}', creation_time='{}', last_edition_time='{}', project_id='{}')>" \
+            .format(self.name, self.creation_time, self.last_edition_time, self.project_id)

@@ -6,12 +6,12 @@ from passlib.hash import pbkdf2_sha256 as sha256
 class UserModel(db.Model, UserMixin):
     __tablename__ = 'Users'
 
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, primary_key=True)
     password = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False)
 
-    permissions = db.relationship("PermissionModel")
+    permissions = db.relationship("ProjectPermissionModel")
+    tokens = db.relationship("TokenBlacklistModel")
 
     def __init__(self, username, password, email):
         self.username = username
@@ -19,8 +19,8 @@ class UserModel(db.Model, UserMixin):
         self.email = email
 
     def __repr__(self):
-        return "<User(id='{}', username='{}', password={}, email={})>" \
-            .format(self.id, self.username, self.password, self.email)
+        return "<User(username='{}', password='{}', email='{}')>" \
+            .format(self.username, self.password, self.email)
 
     @staticmethod
     def generate_hash(password):

@@ -4,19 +4,19 @@ from app import db
 class ProjectModel(db.Model):
     __tablename__ = 'Projects'
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    creationTime = db.Column(db.Date)
-    lastEditionTime = db.Column(db.Date)
+    project_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    creation_time = db.Column(db.Date, nullable=False)
+    last_edition_time = db.Column(db.Date, nullable=False)
 
     diagrams = db.relationship("DiagramModel")
-    permissions = db.relationship("PermissionModel")
+    project_permissions = db.relationship("ProjectPermissionModel")
 
-    def __init__(self, login, creationTime, lastEditionTime):
-        self.login = login
-        self.creationTime = creationTime
-        self.lastEditionTime = lastEditionTime
+    def __init__(self, name, creation_time, last_edition_time):
+        self.name = name
+        self.creation_time = creation_time
+        self.last_edition_time = last_edition_time
 
     def __repr__(self):
-        return "<Project(id='{}', name='{}', creationTime={}, lastEditionTime={})>" \
-            .format(self.id, self.name, self.creationTime, self.lastEditionTime)
+        return "<Project(id='{}', name='{}', creation_time='{}', last_edition_time='{}')>" \
+            .format(self.id, self.name, self.creation_time, self.last_edition_time)
