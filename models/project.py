@@ -6,8 +6,8 @@ class ProjectModel(db.Model):
 
     project_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    creation_time = db.Column(db.Date, nullable=False)
-    last_edition_time = db.Column(db.Date, nullable=False)
+    creation_time = db.Column(db.DateTime, nullable=False)
+    last_edition_time = db.Column(db.DateTime, nullable=False)
 
     diagrams = db.relationship("DiagramModel")
     project_permissions = db.relationship("ProjectPermissionModel")

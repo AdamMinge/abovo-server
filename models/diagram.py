@@ -6,8 +6,8 @@ class DiagramModel(db.Model):
 
     diagram_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    creation_time = db.Column(db.Date, nullable=False)
-    last_edition_time = db.Column(db.Date, nullable=False)
+    creation_time = db.Column(db.DateTime, nullable=False)
+    last_edition_time = db.Column(db.DateTime, nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey("Projects.project_id"), nullable=False)
 
     def __init__(self, name, creation_time, last_edition_time, project_id):

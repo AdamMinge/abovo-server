@@ -14,17 +14,17 @@ class ProjectDiagramById(Resource):
     @jwt_required
     @auth.check_user_project_permission(ProjectPermissionTypes.Subscriber)
     @marshal_with(diagram_fields)
-    def get(self, diagram_id):
+    def get(self, project_id, diagram_id):
         return diagram.get_diagram(diagram_id)
 
     @jwt_required
     @auth.check_user_project_permission(ProjectPermissionTypes.Editor)
     @marshal_with(diagram_fields)
-    def put(self, diagram_id):
+    def put(self, project_id, diagram_id):
         return diagram.update_diagram(diagram_id, **update_diagram_perser.parse_args())
 
     @fresh_jwt_required
     @auth.check_user_project_permission(ProjectPermissionTypes.Administrator)
-    def delete(self, diagram_id):
+    def delete(self, project_id, diagram_id):
         diagram.delete_diagram(diagram_id)
         return {'message': 'Diagram has been removed'}

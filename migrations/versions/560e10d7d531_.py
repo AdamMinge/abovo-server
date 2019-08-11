@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b251ff0cc893
-Revises: 43ad347b7f89
-Create Date: 2019-08-10 10:11:42.892339
+Revision ID: 560e10d7d531
+Revises: 
+Create Date: 2019-08-11 13:19:39.628032
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b251ff0cc893'
-down_revision = '43ad347b7f89'
+revision = '560e10d7d531'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -21,8 +21,8 @@ def upgrade():
     op.create_table('Projects',
     sa.Column('project_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('creation_time', sa.Date(), nullable=False),
-    sa.Column('last_edition_time', sa.Date(), nullable=False),
+    sa.Column('creation_time', sa.DateTime(), nullable=False),
+    sa.Column('last_edition_time', sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint('project_id')
     )
     op.create_table('Users',
@@ -34,20 +34,20 @@ def upgrade():
     op.create_table('Diagrams',
     sa.Column('diagram_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('creation_time', sa.Date(), nullable=False),
-    sa.Column('last_edition_time', sa.Date(), nullable=False),
+    sa.Column('creation_time', sa.DateTime(), nullable=False),
+    sa.Column('last_edition_time', sa.DateTime(), nullable=False),
     sa.Column('project_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['project_id'], ['Projects.project_id'], ),
     sa.PrimaryKeyConstraint('diagram_id')
     )
     op.create_table('ProjectPermissions',
-    sa.Column('permission_id', sa.Integer(), nullable=False),
+    sa.Column('project_permission_id', sa.Integer(), nullable=False),
     sa.Column('type', sa.Enum('Subscriber', 'Editor', 'Administrator', name='projectpermissiontypes'), nullable=False),
     sa.Column('username', sa.String(), nullable=False),
     sa.Column('project_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['project_id'], ['Projects.project_id'], ),
     sa.ForeignKeyConstraint(['username'], ['Users.username'], ),
-    sa.PrimaryKeyConstraint('permission_id')
+    sa.PrimaryKeyConstraint('project_permission_id')
     )
     op.create_table('TokenBlacklist',
     sa.Column('token_id', sa.Integer(), nullable=False),
