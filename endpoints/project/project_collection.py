@@ -3,7 +3,7 @@ from models import ProjectPermissionModel
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from utils.decorators import auth, pagination
 from utils.model_fields import project_fields
-from utils.model_queries import user, project
+from utils.model_queries import user, project, project_permission
 
 
 add_project_perser = reqparse.RequestParser()
@@ -15,7 +15,11 @@ class ProjectsCollection(Resource):
     @marshal_with(project_fields)
     def post(self):
         data = add_project_perser.parse_args()
-        return project.create_project(data['name'], get_jwt_identity())
+        new_project = project.create_project(data['name'])
+        project_permission.create_project_permission(
+            permission_type=ProjectPermissionModel.ProjectPermissionTypes.Administrator,
+            username=get_jwt_identity(),
+            project_id=new_project.project_id)
 
     @jwt_required
     @auth.check_user_project_permission(ProjectPermissionModel.ProjectPermissionTypes.Subscriber)

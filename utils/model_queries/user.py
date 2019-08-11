@@ -53,11 +53,16 @@ def get_user_projects(username):
                 .filter(UserModel.username == username)
 
 
-def user_have_permission_for_project(username, project_id, min_permission):
-    return db.session.query(ProjectPermissionModel) \
-                .filter(ProjectPermissionModel.project_id == project_id and
-                        ProjectPermissionModel.username == username and
-                        ProjectPermissionModel.type >= min_permission).count() > 0
+def user_have_permission_for_project(username, project_id, min_permission=None):
+    if min_permission:
+        return db.session.query(ProjectPermissionModel) \
+                    .filter(ProjectPermissionModel.project_id == project_id and
+                            ProjectPermissionModel.username == username and
+                            ProjectPermissionModel.type >= min_permission).count() > 0
+    else:
+        return db.session.query(ProjectPermissionModel) \
+                   .filter(ProjectPermissionModel.project_id == project_id and
+                           ProjectPermissionModel.username == username).count() > 0
 
 
 def get_user_projects_permissions(username):
