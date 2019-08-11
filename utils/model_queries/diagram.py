@@ -18,6 +18,7 @@ def create_diagram(diagram_name, project_id):
     )
     db.session.add(new_diagram)
     db.session.commit()
+    return new_diagram
 
 
 def get_diagram(diagram_id):

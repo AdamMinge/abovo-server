@@ -1,4 +1,4 @@
-from flask_restful import Resource, reqparse
+from flask_restful import Resource, reqparse, marshal_with
 from models import ProjectPermissionTypes
 from flask_jwt_extended import jwt_required
 from utils.decorators import pagination, auth
@@ -22,8 +22,7 @@ class ProjectPermissions(Resource):
 
     @jwt_required
     @auth.check_user_project_permission(ProjectPermissionTypes.Administrator)
-    @pagination.marshal_with(project_permission_fields)
-    @pagination.paginate()
+    @marshal_with(project_permission_fields)
     def post(self, project_id):
         data = add_project_permission_perser.parse_args()
         return project_permission.create_project_permission(

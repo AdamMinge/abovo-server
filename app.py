@@ -59,7 +59,7 @@ def add_project_resources():
                      endpoint='project_users')
     api.add_resource(project.ProjectDiagrams, '/project/<int:project_id>/diagrams',
                      endpoint='project_diagrams')
-    api.add_resource(project.ProjectDiagramById, '/project/<int:project_id>/diagrams/<int:diagram_id>',
+    api.add_resource(project.ProjectDiagramById, '/project/<int:project_id>/diagram/<int:diagram_id>',
                      endpoint='project_diagram_by_id')
     api.add_resource(project.ProjectPermissions, '/project/<int:project_id>/permissions',
                      endpoint='project_permissions')

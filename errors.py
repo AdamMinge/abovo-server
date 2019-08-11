@@ -24,7 +24,7 @@ errors = {
         'status': 404,
     },
     'ProjectPermissionAlreadyExist': {
-        'message': "A project permission for this user and project already exists.",
+        'message': "A permission for this user and project already exists.",
         'status': 409,
     },
     'ProjectDoesNotExist': {

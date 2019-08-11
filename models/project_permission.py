@@ -9,7 +9,7 @@ class ProjectPermissionTypes(enum.Enum):
 
     @classmethod
     def from_name(cls, name):
-        for permission_type, permission_name in ProjectPermissionTypes.items():
+        for permission_name, permission_type in ProjectPermissionTypes.__members__ .items():
             if permission_name == name:
                 return permission_type
         raise ValueError('{} is not a valid project permission name'.format(name))

@@ -1,4 +1,4 @@
-from flask_restful import Resource, reqparse
+from flask_restful import Resource, reqparse, marshal_with
 from models import ProjectPermissionTypes
 from flask_jwt_extended import jwt_required
 from utils.decorators import pagination, auth
@@ -20,8 +20,7 @@ class ProjectDiagrams(Resource):
 
     @jwt_required
     @auth.check_user_project_permission(ProjectPermissionTypes.Editor)
-    @pagination.marshal_with(diagram_fields)
-    @pagination.paginate()
+    @marshal_with(diagram_fields)
     def post(self, project_id):
         data = add_diagram_perser.parse_args()
         return diagram.create_diagram(
