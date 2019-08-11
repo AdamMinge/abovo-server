@@ -1,7 +1,7 @@
 from flask_restful import Resource, marshal_with, reqparse
 from models import ProjectPermissionTypes
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from utils.decorators import auth, pagination
+from utils.decorators import pagination
 from utils.model_fields import project_fields
 from utils.model_queries import user, project, project_permission
 
@@ -20,6 +20,7 @@ class ProjectsCollection(Resource):
             permission_type=ProjectPermissionTypes.Administrator,
             username=get_jwt_identity(),
             project_id=new_project.project_id)
+        return new_project
 
     @jwt_required
     @pagination.marshal_with(project_fields)

@@ -17,5 +17,5 @@ class DiagramModel(db.Model):
         self.project_id = project_id
 
     def __repr__(self):
-        return "<Diagram(name='{}', creation_time='{}', last_edition_time='{}', project_id='{}')>" \
-            .format(self.name, self.creation_time, self.last_edition_time, self.project_id)
+        return "<Diagram(diagram_id='{}' name='{}', creation_time='{}', last_edition_time='{}', project_id='{}')>" \
+            .format(self.diagram_id, self.name, self.creation_time, self.last_edition_time, self.project_id)

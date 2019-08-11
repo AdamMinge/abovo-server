@@ -29,5 +29,5 @@ class ProjectPermissionModel(db.Model):
         self.project_id = project_id
 
     def __repr__(self):
-        return "<ProjectPermission(id='{}', type='{}', username='{}', project_id='{}')>" \
-            .format(self.id, self.type, self.username, self.project_id)
+        return "<ProjectPermission(project_permission_id='{}', type='{}', username='{}', project_id='{}')>" \
+            .format(self.project_permission_id, self.type, self.username, self.project_id)

@@ -19,5 +19,6 @@ class TokenBlacklistModel(db.Model):
         self.revoked = revoked
 
     def __repr__(self):
-        return "<TokenBlacklistModel(id='{}', jti='{}', token_type='{}', username='{}', expires='{}', revoked='{}')>" \
-            .format(self.id, self.jti, self.token_type, self.username, self.expires, self.revoked)
+        return "<TokenBlacklistModel(token_id='{}', jti='{}', token_type='{}', " \
+               "username='{}', expires='{}', revoked='{}')>" \
+            .format(self.token_id, self.jti, self.token_type, self.username, self.expires, self.revoked)

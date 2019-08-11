@@ -18,5 +18,5 @@ class ProjectModel(db.Model):
         self.last_edition_time = last_edition_time
 
     def __repr__(self):
-        return "<Project(id='{}', name='{}', creation_time='{}', last_edition_time='{}')>" \
-            .format(self.id, self.name, self.creation_time, self.last_edition_time)
+        return "<Project(project_id='{}', name='{}', creation_time='{}', last_edition_time='{}')>" \
+            .format(self.project_id, self.name, self.creation_time, self.last_edition_time)

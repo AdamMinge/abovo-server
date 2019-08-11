@@ -12,7 +12,7 @@ errors = {
         'status': 404,
     },
     'ExpiredSignatureError': {
-        'message': "A token with that jti has expired.",
+        'message': "A token has expired.",
         'status': 401,
     },
     'PermissionDenied': {
