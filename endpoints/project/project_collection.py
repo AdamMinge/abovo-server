@@ -22,7 +22,6 @@ class ProjectsCollection(Resource):
             project_id=new_project.project_id)
 
     @jwt_required
-    @auth.check_user_project_permission(ProjectPermissionTypes.Subscriber)
     @pagination.marshal_with(project_fields)
     @pagination.paginate()
     def get(self):
