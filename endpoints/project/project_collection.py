@@ -1,5 +1,5 @@
 from flask_restful import Resource, marshal_with, reqparse
-from models import ProjectPermissionModel
+from models import ProjectPermissionTypes
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from utils.decorators import auth, pagination
 from utils.model_fields import project_fields
@@ -17,12 +17,12 @@ class ProjectsCollection(Resource):
         data = add_project_perser.parse_args()
         new_project = project.create_project(data['name'])
         project_permission.create_project_permission(
-            permission_type=ProjectPermissionModel.ProjectPermissionTypes.Administrator,
+            permission_type=ProjectPermissionTypes.Administrator,
             username=get_jwt_identity(),
             project_id=new_project.project_id)
 
     @jwt_required
-    @auth.check_user_project_permission(ProjectPermissionModel.ProjectPermissionTypes.Subscriber)
+    @auth.check_user_project_permission(ProjectPermissionTypes.Subscriber)
     @pagination.marshal_with(project_fields)
     @pagination.paginate()
     def get(self):

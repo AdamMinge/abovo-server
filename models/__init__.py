@@ -1,4 +1,4 @@
-from .project_permission import ProjectPermissionModel
+from .project_permission import ProjectPermissionModel, ProjectPermissionTypes
 from .diagram import DiagramModel
 from .token_blacklist import TokenBlacklistModel
 from .user import UserModel

@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from models import ProjectPermissionModel
+from models import ProjectPermissionTypes
 from flask_jwt_extended import jwt_required
 from utils.decorators import pagination, auth
 from utils.model_queries import project
@@ -8,7 +8,7 @@ from utils.model_fields import user_fields
 
 class ProjectUsers(Resource):
     @jwt_required
-    @auth.check_user_project_permission(ProjectPermissionModel.ProjectPermissionTypes.Subscriber)
+    @auth.check_user_project_permission(ProjectPermissionTypes.Subscriber)
     @pagination.marshal_with(user_fields)
     @pagination.paginate()
     def get(self, project_id):
