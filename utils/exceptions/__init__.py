@@ -1,4 +1,4 @@
-from .auth import TokenDoesNotExist
+from .auth import TokenDoesNotExist, WrongCredentials
 from .user import UserAlreadyExist, UserDoesNotExist
 from .project import ProjectDoesNotExist
 from .diagram import DiagramDoesNotExist

@@ -4,3 +4,7 @@ class TokenDoesNotExist(Exception):
 
 class PermissionDenied(Exception):
     pass
+
+
+class WrongCredentials(Exception):
+    pass

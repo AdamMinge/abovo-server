@@ -34,5 +34,9 @@ errors = {
     'DiagramDoesNotExist': {
         'message': "A diagram with that id does not exists.",
         'status': 404,
+    },
+    'WrongCredentials': {
+        'message': "Wrong credentials",
+        'status': 401,
     }
 }
