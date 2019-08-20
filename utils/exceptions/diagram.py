@@ -1,3 +1,0 @@
-class DiagramDoesNotExist(Exception):
-    pass
-

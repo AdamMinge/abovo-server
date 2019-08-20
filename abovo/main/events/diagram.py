@@ -1,0 +1,116 @@
+from flask_socketio import emit
+from .. import sio
+from ..services import diagram, project
+from ..models import ProjectPermissionTypes
+from ..utils.model_schemes import DiagramSchema
+from ..utils.event_decorators import auth
+
+
+@sio.on('diagrams/get')
+@auth.authenticated_only
+@auth.check_user_project_permission('diagrams/get', ProjectPermissionTypes.Subscriber)
+def on_project_diagrams_get(project_id, json=None):
+    if json is None:
+        json = dict()
+    project_diagrams = project.get_project_diagrams(project_id).all()
+    schema = DiagramSchema(many=True)
+    result = schema.dump(project_diagrams)
+
+    emit('diagrams/get', {
+        'type': 'Success',
+        'diagrams': result
+    })
+
+
+@sio.on('diagrams/add')
+@auth.authenticated_only
+@auth.check_user_project_permission('diagrams/add', ProjectPermissionTypes.Editor)
+def on_project_diagrams_add(project_id, json=None):
+    if json is None:
+        json = dict()
+    try:
+        diagram_name = json['name']
+        created_diagram = diagram.create_diagram(diagram_name, project_id)
+    except KeyError:
+        message = {
+              'type': 'Failure',
+              'failure': 'WrongArguments',
+              'message': dict()
+        }
+        if 'name' not in json:
+            message['message']['name'] = 'argument is required'
+        emit('diagrams/add', message)  
+    else:
+        schema = DiagramSchema()
+        result = schema.dump(created_diagram)
+
+        emit('diagrams/add', {
+            'type': 'Success',
+            'project': result
+        })
+
+
+@sio.on('diagram/get')
+@auth.authenticated_only
+@auth.check_user_project_permission('diagrams/get', ProjectPermissionTypes.Subscriber)
+def on_project_diagram_by_id_get(diagram_id, json=None):
+    if json is None:
+        json = dict()
+    try:
+        found_diagram = diagram.get_diagram(diagram_id)
+    except diagram.DiagramDoesNotExist:
+        emit('diagram/get', {
+            'type': 'Failure',
+            'failure': 'DiagramDoesNotExist',
+            'message': 'diagram with this id does not exist'
+        })
+    else:
+        schema = DiagramSchema()
+        result = schema.dump(found_diagram)
+
+        emit('diagram/get', {
+            'type': 'Success',
+            'diagrams': result
+        })
+
+
+@sio.on('diagram/update')
+@auth.authenticated_only
+@auth.check_user_project_permission('diagrams/get', ProjectPermissionTypes.Editor)
+def on_project_diagram_by_id_update(diagram_id, json=None):
+    if json is None:
+        json = dict()
+    try:
+        updated_diagram = diagram.update_diagram(diagram_id, **json)
+    except diagram.DiagramDoesNotExist:
+        emit('diagram/update', {
+            'type': 'Failure',
+            'failure': 'DiagramDoesNotExist',
+            'message': 'diagram with this id does not exist'
+        })
+    else:
+        schema = DiagramSchema()
+        result = schema.dump(updated_diagram)
+
+        emit('diagram/update', {
+            'type': 'Success',
+            'project': result
+        })
+
+
+@sio.on('diagram/delete')
+@auth.authenticated_only
+@auth.check_user_project_permission('diagrams/get', ProjectPermissionTypes.Administrator)
+def on_project_diagram_by_id_delete(diagram_id):
+    try:
+        diagram.delete_diagram(diagram_id)
+    except diagram.DiagramDoesNotExist:
+        emit('diagram/delete', {
+            'type': 'Failure',
+            'failure': 'DiagramDoesNotExist',
+            'message': 'diagram with this id does not exist'
+        })
+    else:
+        emit('diagram/delete', {
+            'type': 'Success'
+        })
