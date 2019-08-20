@@ -6,9 +6,9 @@ from ..utils.model_schemes import DiagramSchema
 from ..utils.event_decorators import auth
 
 
-@sio.on('diagrams/get')
+@sio.on('project/diagrams/get')
 @auth.authenticated_only
-@auth.check_user_project_permission('diagrams/get', ProjectPermissionTypes.Subscriber)
+@auth.check_user_project_permission('project/diagrams/get', ProjectPermissionTypes.Subscriber)
 def on_project_diagrams_get(project_id, json=None):
     if json is None:
         json = dict()
@@ -16,15 +16,15 @@ def on_project_diagrams_get(project_id, json=None):
     schema = DiagramSchema(many=True)
     result = schema.dump(project_diagrams)
 
-    emit('diagrams/get', {
+    emit('project/diagrams/get', {
         'type': 'Success',
         'diagrams': result
     })
 
 
-@sio.on('diagrams/add')
+@sio.on('project/diagrams/add')
 @auth.authenticated_only
-@auth.check_user_project_permission('diagrams/add', ProjectPermissionTypes.Editor)
+@auth.check_user_project_permission('project/diagrams/add', ProjectPermissionTypes.Editor)
 def on_project_diagrams_add(project_id, json=None):
     if json is None:
         json = dict()
@@ -39,27 +39,27 @@ def on_project_diagrams_add(project_id, json=None):
         }
         if 'name' not in json:
             message['message']['name'] = 'argument is required'
-        emit('diagrams/add', message)  
+        emit('project/diagrams/add', message)
     else:
         schema = DiagramSchema()
         result = schema.dump(created_diagram)
 
-        emit('diagrams/add', {
+        emit('project/diagrams/add', {
             'type': 'Success',
             'project': result
         })
 
 
-@sio.on('diagram/get')
+@sio.on('project/diagram/get')
 @auth.authenticated_only
-@auth.check_user_project_permission('diagrams/get', ProjectPermissionTypes.Subscriber)
+@auth.check_user_project_permission('project/diagram/get', ProjectPermissionTypes.Subscriber)
 def on_project_diagram_by_id_get(diagram_id, json=None):
     if json is None:
         json = dict()
     try:
         found_diagram = diagram.get_diagram(diagram_id)
     except diagram.DiagramDoesNotExist:
-        emit('diagram/get', {
+        emit('project/diagram/get', {
             'type': 'Failure',
             'failure': 'DiagramDoesNotExist',
             'message': 'diagram with this id does not exist'
@@ -68,22 +68,22 @@ def on_project_diagram_by_id_get(diagram_id, json=None):
         schema = DiagramSchema()
         result = schema.dump(found_diagram)
 
-        emit('diagram/get', {
+        emit('project/diagram/get', {
             'type': 'Success',
             'diagrams': result
         })
 
 
-@sio.on('diagram/update')
+@sio.on('project/diagram/update')
 @auth.authenticated_only
-@auth.check_user_project_permission('diagrams/get', ProjectPermissionTypes.Editor)
+@auth.check_user_project_permission('project/diagram/update', ProjectPermissionTypes.Editor)
 def on_project_diagram_by_id_update(diagram_id, json=None):
     if json is None:
         json = dict()
     try:
         updated_diagram = diagram.update_diagram(diagram_id, **json)
     except diagram.DiagramDoesNotExist:
-        emit('diagram/update', {
+        emit('project/diagram/update', {
             'type': 'Failure',
             'failure': 'DiagramDoesNotExist',
             'message': 'diagram with this id does not exist'
@@ -92,25 +92,25 @@ def on_project_diagram_by_id_update(diagram_id, json=None):
         schema = DiagramSchema()
         result = schema.dump(updated_diagram)
 
-        emit('diagram/update', {
+        emit('project/diagram/update', {
             'type': 'Success',
             'project': result
         })
 
 
-@sio.on('diagram/delete')
+@sio.on('project/diagram/delete')
 @auth.authenticated_only
-@auth.check_user_project_permission('diagrams/get', ProjectPermissionTypes.Administrator)
+@auth.check_user_project_permission('project/diagram/delete', ProjectPermissionTypes.Administrator)
 def on_project_diagram_by_id_delete(diagram_id):
     try:
         diagram.delete_diagram(diagram_id)
     except diagram.DiagramDoesNotExist:
-        emit('diagram/delete', {
+        emit('project/diagram/delete', {
             'type': 'Failure',
             'failure': 'DiagramDoesNotExist',
             'message': 'diagram with this id does not exist'
         })
     else:
-        emit('diagram/delete', {
+        emit('project/diagram/delete', {
             'type': 'Success'
         })
