@@ -60,9 +60,8 @@ def on_project_permissions_add(project_id, json=None):
 def on_project_permission_by_id_get(project_permission_id, json=None):
     if json is None:
         json = dict()
-    try:
-        found_project_permission = project_permission.get_project_permission(project_permission_id)
-    except project_permission.ProjectPermissionDoesNotExist:
+    found_project_permission = project_permission.get_project_permission(project_permission_id)
+    if not found_project_permission:
         emit('project/permission/get', {
             'type': 'Failure',
             'failure': 'ProjectPermissionDoesNotExist',
@@ -107,6 +106,7 @@ def on_project_permission_by_id_update(project_permission_id, json=None):
 @auth.check_user_project_permission('project/permission/delete', ProjectPermissionTypes.Administrator)
 def on_project_permission_by_id_delete(project_permission_id):
     try:
+        found_project_permission = project_permission.get_project_permission(project_permission_id)
         project_permission.delete_project_permission(project_permission_id)
     except project_permission.ProjectPermissionDoesNotExist:
         emit('project/permission/delete', {
@@ -115,6 +115,10 @@ def on_project_permission_by_id_delete(project_permission_id):
             'message': 'project permission with this id does not exist'
         })
     else:
+        schema = ProjectPermissionSchema()
+        result = schema.dump(found_project_permission)
+
         emit('project/permission/delete', {
-            'type': 'Success'
+            'type': 'Success',
+            'permission': result
         })

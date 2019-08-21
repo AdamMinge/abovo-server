@@ -13,7 +13,6 @@ def on_login(json=None):
     try:
         username = json['username']
         password = json['password']
-        found_user = user.get_user(username)
     except KeyError:
         message = {
             'type': 'Failure',
@@ -25,25 +24,27 @@ def on_login(json=None):
         if 'password' not in json:
             message['message']['password'] = 'argument is required'
         emit('login', message)
-    except user.UserDoesNotExist:
-        emit('login', {
-            'type': 'Failure',
-            'failure': 'UserDoesNotExist',
-            'message': 'wrong username or password'
-        })
     else:
-        if not UserModel.verify_hash(password, found_user.password):
+        found_user = user.get_user(username)
+        if not found_user:
             emit('login', {
                 'type': 'Failure',
-                'failure': 'WrongCredentials',
+                'failure': 'UserDoesNotExist',
                 'message': 'wrong username or password'
             })
         else:
-            login_user(found_user)
-            emit('login', {
-                'type': 'Success',
-                'message': 'Logged in as {}'.format(found_user.username)
-            })
+            if not UserModel.verify_hash(password, found_user.password):
+                emit('login', {
+                    'type': 'Failure',
+                    'failure': 'WrongCredentials',
+                    'message': 'wrong username or password'
+                })
+            else:
+                login_user(found_user)
+                emit('login', {
+                    'type': 'Success',
+                    'message': 'Logged in as {}'.format(found_user.username)
+                })
 
 
 @sio.on('logout')

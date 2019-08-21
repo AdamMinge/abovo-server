@@ -56,9 +56,9 @@ def on_project_diagrams_add(project_id, json=None):
 def on_project_diagram_by_id_get(diagram_id, json=None):
     if json is None:
         json = dict()
-    try:
-        found_diagram = diagram.get_diagram(diagram_id)
-    except diagram.DiagramDoesNotExist:
+
+    found_diagram = diagram.get_diagram(diagram_id)
+    if not found_diagram:
         emit('project/diagram/get', {
             'type': 'Failure',
             'failure': 'DiagramDoesNotExist',
@@ -70,7 +70,7 @@ def on_project_diagram_by_id_get(diagram_id, json=None):
 
         emit('project/diagram/get', {
             'type': 'Success',
-            'diagrams': result
+            'diagram': result
         })
 
 
@@ -94,7 +94,7 @@ def on_project_diagram_by_id_update(diagram_id, json=None):
 
         emit('project/diagram/update', {
             'type': 'Success',
-            'project': result
+            'diagram': result
         })
 
 
@@ -103,6 +103,7 @@ def on_project_diagram_by_id_update(diagram_id, json=None):
 @auth.check_user_project_permission('project/diagram/delete', ProjectPermissionTypes.Administrator)
 def on_project_diagram_by_id_delete(diagram_id):
     try:
+        found_diagram = diagram.get_diagram(diagram_id)
         diagram.delete_diagram(diagram_id)
     except diagram.DiagramDoesNotExist:
         emit('project/diagram/delete', {
@@ -111,6 +112,10 @@ def on_project_diagram_by_id_delete(diagram_id):
             'message': 'diagram with this id does not exist'
         })
     else:
+        schema = DiagramSchema()
+        result = schema.dump(found_diagram)
+
         emit('project/diagram/delete', {
-            'type': 'Success'
+            'type': 'Success',
+            'diagram': result
         })
