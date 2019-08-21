@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, fresh_jwt_required
 from ..user import user_api
 from ...utils.controller_decorators import auth
 from ...utils.model_fields import user_fields
+from ...utils.exceptions import UserDoesNotExist
 from ...services import user
 
 
@@ -16,7 +17,10 @@ class UserByUsername(Resource):
     @auth.self_only
     @marshal_with(user_fields)
     def put(self, username):
-        return user.update_user(username, **update_user_perser.parse_args())
+        found_user = user.update_user(username, **update_user_perser.parse_args())
+        if not found_user:
+            raise UserDoesNotExist
+        return found_user
 
     @jwt_required
     @marshal_with(user_fields)

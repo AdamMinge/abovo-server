@@ -4,6 +4,7 @@ from ..project import project_api
 from ...models import ProjectPermissionTypes
 from ...utils.controller_decorators import auth
 from ...utils.model_fields import project_fields
+from ...utils.exceptions import ProjectDoesNotExist
 from ...services import project
 
 
@@ -16,7 +17,10 @@ class ProjectById(Resource):
     @auth.check_user_project_permission(ProjectPermissionTypes.Subscriber)
     @marshal_with(project_fields)
     def get(self, project_id):
-        return project.get_project(project_id)
+        found_project = project.get_project(project_id)
+        if not found_project:
+            raise ProjectDoesNotExist
+        return found_project
 
     @jwt_required
     @auth.check_user_project_permission(ProjectPermissionTypes.Administrator)

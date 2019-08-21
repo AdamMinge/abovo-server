@@ -4,6 +4,7 @@ from ..project import project_api
 from ...models import ProjectPermissionTypes
 from ...utils.controller_decorators import auth
 from ...utils.model_fields import diagram_fields
+from ...utils.exceptions import DiagramDoesNotExist
 from ...services import diagram
 
 
@@ -16,7 +17,10 @@ class ProjectDiagramById(Resource):
     @auth.check_user_project_permission(ProjectPermissionTypes.Subscriber)
     @marshal_with(diagram_fields)
     def get(self, project_id, diagram_id):
-        return diagram.get_diagram(diagram_id)
+        found_diagram = diagram.get_diagram(diagram_id)
+        if not found_diagram:
+            raise DiagramDoesNotExist
+        return found_diagram
 
     @jwt_required
     @auth.check_user_project_permission(ProjectPermissionTypes.Editor)
