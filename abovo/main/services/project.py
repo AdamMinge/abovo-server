@@ -2,7 +2,6 @@ import datetime
 from ..models import ProjectModel, ProjectPermissionModel, UserModel, DiagramModel
 from ..utils.exceptions import ProjectDoesNotExist
 from ..models import ProjectPermissionTypes
-from ..services import project_permission
 from .. import db
 
 
@@ -14,19 +13,20 @@ def create_project(project_name, username):
     )
     db.session.add(new_project)
     db.session.commit()
-    project_permission.create_project_permission(
-        permission_type=ProjectPermissionTypes.Administrator,
-        username=username,
-        project_id=new_project.project_id)
 
+    new_project_permission = ProjectPermissionModel(
+        type=ProjectPermissionTypes.Administrator,
+        username=username,
+        project_id=new_project.project_id
+    )
+    db.session.add(new_project_permission)
+    db.session.commit()
     return new_project
 
 
 def get_project(project_id):
-    user = ProjectModel.query.filter_by(project_id=project_id).first()
-    if not user:
-        raise ProjectDoesNotExist
-    return user
+    found_project = ProjectModel.query.filter_by(project_id=project_id).first()
+    return found_project
 
 
 def get_projects():
@@ -35,6 +35,8 @@ def get_projects():
 
 def update_project(project_id, **kwargs):
     current_project = get_project(project_id)
+    if not current_project:
+        raise ProjectDoesNotExist
     if 'name' in kwargs:
         current_project.name = kwargs.get('name')
     db.session.commit()
@@ -45,6 +47,10 @@ def delete_project(project_id):
     current_project = ProjectModel.query.filter_by(project_id=project_id).first()
     if not current_project:
         raise ProjectDoesNotExist
+
+    ProjectPermissionModel.query.filter(project_id=project_id).delete()
+    DiagramModel.query.filter(project_id=project_id).delete()
+
     db.session.delete(current_project)
     db.session.commit()
 
