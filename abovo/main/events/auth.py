@@ -2,6 +2,7 @@ from flask_login import login_user, logout_user
 from flask_socketio import emit
 from flask_login import current_user
 from ..models import UserModel
+from ..utils.model_schemes import UserSchema
 from ..services import user
 from .. import sio
 
@@ -41,19 +42,29 @@ def on_login(json=None):
                 })
             else:
                 login_user(found_user)
+
+                schema = UserSchema()
+                result = schema.dump(found_user)
+
                 emit('login', {
                     'type': 'Success',
-                    'message': 'Logged in as {}'.format(found_user.username)
+                    'message': 'Logged in as {}'.format(found_user.username),
+                    'user': result
                 })
 
 
 @sio.on('logout')
 def on_logout():
     if current_user.is_authenticated:
+        schema = UserSchema()
+        result = schema.dump(current_user)
+
         emit('logout', {
             'type': 'Success',
-            'message': 'User {} has been logged out'.format(current_user.username)
+            'message': 'User {} has been logged out'.format(current_user.username),
+            'user': result
         })
+
         logout_user()
     else:
         emit('logout', {
@@ -92,7 +103,11 @@ def on_signup(json=None):
             'message': 'Username {} already exist'.format(json['username'])
         })
     else:
+        schema = UserSchema()
+        result = schema.dump(created_user)
+
         emit('signup', {
             'type': 'Success',
-            'message': 'Register in as {}'.format(created_user.username)
+            'message': 'Register in as {}'.format(created_user.username),
+            'user': result
         })
