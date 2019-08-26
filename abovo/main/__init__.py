@@ -13,6 +13,9 @@ sio = SocketIO(manage_session=False)
 jwt = JWTManager()
 login_manager = LoginManager()
 
+# map username to sid
+uts = {}
+
 
 def create_app(config_name):
     # initialize application

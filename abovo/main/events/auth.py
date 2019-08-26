@@ -1,10 +1,11 @@
+from flask import request
 from flask_login import login_user, logout_user
 from flask_socketio import emit
 from flask_login import current_user
 from ..models import UserModel
 from ..utils.model_schemes import UserSchema
 from ..services import user
-from .. import sio
+from .. import sio, uts
 
 
 @sio.on('login')
@@ -46,6 +47,8 @@ def on_login(json=None):
                 schema = UserSchema()
                 result = schema.dump(found_user)
 
+                uts[found_user.username] = request.sid
+
                 emit('login', {
                     'type': 'Success',
                     'message': 'Logged in as {}'.format(found_user.username),
@@ -58,6 +61,8 @@ def on_logout():
     if current_user.is_authenticated:
         schema = UserSchema()
         result = schema.dump(current_user)
+
+        del uts[current_user.username]
 
         emit('logout', {
             'type': 'Success',
@@ -111,3 +116,9 @@ def on_signup(json=None):
             'message': 'Register in as {}'.format(created_user.username),
             'user': result
         })
+
+
+@sio.on('disconnect')
+def on_signup():
+    if current_user.is_authenticated:
+        del uts[current_user.username]
