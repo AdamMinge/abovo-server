@@ -1,19 +1,20 @@
-from ..models import ProjectPermissionModel
+from ..models import ProjectPermissionModel, ProjectModel, UserModel
 from ..utils.exceptions import (ProjectPermissionDoesNotExist, ProjectDoesNotExist,
                                 UserDoesNotExist, ProjectPermissionAlreadyExist)
-from ..services import project, user
 from .. import db
 
 
 def create_project_permission(permission_type, username, project_id):
-    project_for_project_permission = project.get_project(project_id)
-    user_for_project_permission = user.get_user(username)
-    permission_already_exist = user.user_have_permission_for_project(username, project_id)
+    found_project = ProjectModel.query.filter_by(project_id=project_id).first()
+    found_user = UserModel.query.filter_by(username=username).first()
+    permission_already_exist = db.session.query(ProjectPermissionModel).filter(
+        ProjectPermissionModel.project_id == project_id,
+        ProjectPermissionModel.username == username).count() > 0
 
-    if not project_for_project_permission:
+    if not found_project:
         raise ProjectDoesNotExist
 
-    if not user_for_project_permission:
+    if not found_user:
         raise UserDoesNotExist
 
     if permission_already_exist:
@@ -31,8 +32,6 @@ def create_project_permission(permission_type, username, project_id):
 
 def get_project_permission(project_permission_id):
     current_user = ProjectPermissionModel.query.filter_by(project_permission_id=project_permission_id).first()
-    if not current_user:
-        raise ProjectPermissionDoesNotExist
     return current_user
 
 
@@ -42,6 +41,8 @@ def get_projects_permissions():
 
 def update_project_permission(project_permission_id, **kwargs):
     current_project_permission = get_project_permission(project_permission_id)
+    if not current_project_permission:
+        raise ProjectPermissionDoesNotExist
     if 'type' in kwargs:
         permission_type = ProjectPermissionModel.ProjectPermissionTypes.from_name(kwargs.get('type'))
         current_project_permission.type = permission_type

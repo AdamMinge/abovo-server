@@ -1,3 +1,4 @@
+from sqlalchemy.ext.hybrid import hybrid_property
 from .. import db
 
 
@@ -11,6 +12,10 @@ class ProjectModel(db.Model):
 
     diagrams = db.relationship("DiagramModel")
     project_permissions = db.relationship("ProjectPermissionModel")
+
+    @hybrid_property
+    def display_name(self):
+        return self.name + '#{}'.format(self.project_id)
 
     def __init__(self, name, creation_time, last_edition_time):
         self.name = name

@@ -56,9 +56,8 @@ def on_project_collection_add(json=None):
 def on_project_by_id_get(project_id, json=None):
     if json is None:
         json = dict()
-    try:
-        found_project = project.get_project(project_id)
-    except project.ProjectDoesNotExist:
+    found_project = project.get_project(project_id)
+    if not found_project:
         emit('project/get', {
             'type': 'Failure',
             'failure': 'ProjectDoesNotExist',
@@ -103,6 +102,7 @@ def on_project_by_id_update(project_id, json=None):
 @auth.check_user_project_permission('project/delete', ProjectPermissionTypes.Administrator)
 def on_project_by_id_delete(project_id):
     try:
+        found_project = project.get_project(project_id)
         project.delete_project(project_id)
     except project.ProjectDoesNotExist:
         emit('project/delete', {
@@ -111,6 +111,10 @@ def on_project_by_id_delete(project_id):
             'message': 'project with this id does not exist'
         })
     else:
+        schema = ProjectSchema()
+        result = schema.dump(found_project)
+
         emit('project/delete', {
-            'type': 'Success'
+            'type': 'Success',
+            'project': result
         })

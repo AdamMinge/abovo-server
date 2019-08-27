@@ -6,9 +6,9 @@ from ..utils.model_schemes import ProjectPermissionSchema
 from ..utils.event_decorators import auth
 
 
-@sio.on('project_permission/get')
+@sio.on('project/permissions/get')
 @auth.authenticated_only
-@auth.check_user_project_permission('project_permission/get', ProjectPermissionTypes.Subscriber)
+@auth.check_user_project_permission('project/permissions/get', ProjectPermissionTypes.Subscriber)
 def on_project_permissions_get(project_id, json=None):
     if json is None:
         json = dict()
@@ -16,15 +16,15 @@ def on_project_permissions_get(project_id, json=None):
     schema = ProjectPermissionSchema(many=True)
     result = schema.dump(project_permissions_collection)
 
-    emit('project_permission/get', {
+    emit('project/permissions/get', {
         'type': 'Success',
-        'project_permissions': result
+        'permissions': result
     })
 
 
-@sio.on('project_permission/add')
+@sio.on('project/permissions/add')
 @auth.authenticated_only
-@auth.check_user_project_permission('project_permission/add', ProjectPermissionTypes.Subscriber)
+@auth.check_user_project_permission('project/permissions/add', ProjectPermissionTypes.Subscriber)
 def on_project_permissions_add(project_id, json=None):
     if json is None:
         json = dict()
@@ -43,27 +43,82 @@ def on_project_permissions_add(project_id, json=None):
         }
         if 'name' not in json:
             message['message']['name'] = 'argument is required'
-        emit('project_permission/add', message)
+        emit('project/permissions/add', message)
     else:
         schema = ProjectPermissionSchema()
         result = schema.dump(created_project_permission)
 
-        emit('project_permission/add', {
+        emit('project/permissions/add', {
             'type': 'Success',
-            'project_permission': result
+            'permission': result
         })
 
 
-@sio.on('project_permission/get')
-def on_project_permission_by_id_get(json=None):
-    pass
+@sio.on('project/permission/get')
+@auth.authenticated_only
+@auth.check_user_project_permission('project/permission/get', ProjectPermissionTypes.Subscriber)
+def on_project_permission_by_id_get(project_permission_id, json=None):
+    if json is None:
+        json = dict()
+    found_project_permission = project_permission.get_project_permission(project_permission_id)
+    if not found_project_permission:
+        emit('project/permission/get', {
+            'type': 'Failure',
+            'failure': 'ProjectPermissionDoesNotExist',
+            'message': 'project permission with this id does not exist'
+        })
+    else:
+        schema = ProjectPermissionSchema()
+        result = schema.dump(found_project_permission)
+
+        emit('project/permission/get', {
+            'type': 'Success',
+            'permission': result
+        })
 
 
-@sio.on('project_permission/update')
-def on_project_permission_by_id_update(json=None):
-    pass
+@sio.on('project/permission/update')
+@auth.authenticated_only
+@auth.check_user_project_permission('project/permission/update', ProjectPermissionTypes.Administrator)
+def on_project_permission_by_id_update(project_permission_id, json=None):
+    if json is None:
+        json = dict()
+    try:
+        updated_project_permission = project_permission.update_project_permission(project_permission_id, **json)
+    except project_permission.ProjectPermissionDoesNotExist:
+        emit('project/permission/update', {
+            'type': 'Failure',
+            'failure': 'ProjectPermissionDoesNotExist',
+            'message': 'project permission with this id does not exist'
+        })
+    else:
+        schema = ProjectPermissionSchema()
+        result = schema.dump(updated_project_permission)
+
+        emit('project/permission/update', {
+            'type': 'Success',
+            'permission': result
+        })
 
 
-@sio.on('project_permission/delete')
-def on_project_permission_by_id_delete():
-    pass
+@sio.on('project/permission/delete')
+@auth.authenticated_only
+@auth.check_user_project_permission('project/permission/delete', ProjectPermissionTypes.Administrator)
+def on_project_permission_by_id_delete(project_permission_id):
+    try:
+        found_project_permission = project_permission.get_project_permission(project_permission_id)
+        project_permission.delete_project_permission(project_permission_id)
+    except project_permission.ProjectPermissionDoesNotExist:
+        emit('project/permission/delete', {
+            'type': 'Failure',
+            'failure': 'ProjectPermissionDoesNotExist',
+            'message': 'project permission with this id does not exist'
+        })
+    else:
+        schema = ProjectPermissionSchema()
+        result = schema.dump(found_project_permission)
+
+        emit('project/permission/delete', {
+            'type': 'Success',
+            'permission': result
+        })

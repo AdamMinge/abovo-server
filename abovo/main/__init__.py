@@ -9,9 +9,12 @@ from .config import config_by_name
 
 # create all application modules
 db = SQLAlchemy()
-sio = SocketIO(manage_session=False)
+sio = SocketIO(manage_session=True)
 jwt = JWTManager()
 login_manager = LoginManager()
+
+# map username to sid
+uts = {}
 
 
 def create_app(config_name):
@@ -36,7 +39,9 @@ def create_app(config_name):
     app.register_blueprint(project_blueprint)
 
     # import socket io events
-    from .events import auth, project, user
+    from .events import (auth, project, user,
+                         project_permission, models,
+                         listener, diagram)
 
     # set jwt function which check that token is revoked
     from .services import token_blacklist

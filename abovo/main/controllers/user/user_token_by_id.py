@@ -3,6 +3,7 @@ from flask_jwt_extended import fresh_jwt_required
 from ..user import user_api
 from ...utils.controller_decorators import auth
 from ...utils.model_fields import token_fields
+from ...utils.exceptions import TokenDoesNotExist
 from ...services import user
 
 
@@ -11,7 +12,10 @@ class UserTokenById(Resource):
     @auth.self_only
     @marshal_with(token_fields)
     def get(self, username, token_id):
-        return user.get_user_token(username, token_id)
+        token = user.get_user_token(username, token_id)
+        if not token:
+            raise TokenDoesNotExist
+        return token
 
     @fresh_jwt_required
     @auth.self_only

@@ -22,6 +22,9 @@ class UserModel(db.Model, UserMixin):
         return "<User(username='{}', password='{}', email='{}')>" \
             .format(self.username, self.password, self.email)
 
+    def get_id(self):
+        return self.username
+
     @staticmethod
     def generate_hash(password):
         return sha256.hash(password)

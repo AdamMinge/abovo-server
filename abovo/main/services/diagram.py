@@ -1,12 +1,11 @@
 from datetime import datetime
-from ..models import DiagramModel
+from ..models import DiagramModel, ProjectModel
 from ..utils.exceptions import DiagramDoesNotExist, ProjectDoesNotExist
-from ..services import project
 from .. import db
 
 
 def create_diagram(diagram_name, project_id):
-    project_for_diagram = project.get_project(project_id)
+    project_for_diagram = ProjectModel.query.filter_by(project_id=project_id).first()
     if not project_for_diagram:
         raise ProjectDoesNotExist
 
@@ -23,8 +22,6 @@ def create_diagram(diagram_name, project_id):
 
 def get_diagram(diagram_id):
     user = DiagramModel.query.filter_by(diagram_id=diagram_id).first()
-    if not user:
-        raise DiagramDoesNotExist
     return user
 
 
@@ -33,7 +30,9 @@ def get_diagrams():
 
 
 def update_diagram(diagram_id, **kwargs):
-    current_diagram = get_diagram(diagram_id)
+    current_diagram = DiagramModel.query.filter_by(diagram_id=diagram_id).first()
+    if not current_diagram:
+        raise DiagramDoesNotExist
     if 'name' in kwargs:
         current_diagram.name = kwargs.get('name')
     db.session.commit()

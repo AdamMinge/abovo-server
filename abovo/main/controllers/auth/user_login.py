@@ -3,7 +3,7 @@ from flask_restful import Resource, reqparse
 from ..auth import auth_api
 from ...services import token_blacklist, user
 from ...models import UserModel
-from ...utils.exceptions import WrongCredentials
+from ...utils.exceptions import WrongCredentials, UserDoesNotExist
 
 
 login_perser = reqparse.RequestParser()
@@ -18,6 +18,9 @@ class UserLogin(Resource):
         password = data['password']
 
         current_user = user.get_user(username)
+
+        if not current_user:
+            raise UserDoesNotExist
 
         if not UserModel.verify_hash(password, current_user.password):
             raise WrongCredentials

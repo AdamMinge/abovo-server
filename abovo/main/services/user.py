@@ -19,8 +19,6 @@ def create_user(username, password, email):
 
 def get_user(username):
     user = UserModel.query.filter_by(username=username).first()
-    if not user:
-        raise UserDoesNotExist
     return user
 
 
@@ -30,6 +28,8 @@ def get_users():
 
 def update_user(username, **kwargs):
     current_user = get_user(username)
+    if not current_user:
+        raise UserDoesNotExist
     if 'password' in kwargs:
         current_user.password = UserModel.generate_hash(kwargs.get('password'))
     if 'email' in kwargs:
@@ -42,6 +42,7 @@ def delete_user(username):
     current_user = TokenBlacklistModel.query.filter_by(username=username).first()
     if not current_user:
         raise UserDoesNotExist
+    ProjectPermissionModel.query.filter(username=username).delete()
     db.session.delete(current_user)
     db.session.commit()
 
@@ -78,8 +79,6 @@ def get_user_tokens(username):
 
 def get_user_token(username, token_id):
     token = TokenBlacklistModel.query.filter_by(username=username, token_id=token_id).first()
-    if not token:
-        raise TokenDoesNotExist
     return token
 
 
