@@ -9,7 +9,7 @@ from .config import config_by_name
 
 # create all application modules
 db = SQLAlchemy()
-sio = SocketIO(manage_session=False)
+sio = SocketIO(manage_session=True)
 jwt = JWTManager()
 login_manager = LoginManager()
 
