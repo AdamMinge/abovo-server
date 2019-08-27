@@ -6,13 +6,13 @@ from .. import sio
 
 @sio.on('listener/project/enable')
 @auth.authenticated_only
-@auth.check_user_project_permission('project/get', ProjectPermissionTypes.Subscriber)
+@auth.check_user_project_permission('listener/project/enable', ProjectPermissionTypes.Subscriber)
 def on_listener_user_enable(project_id):
     join_room('project#{}'.format(project_id))
 
 
 @sio.on('listener/project/disable')
 @auth.authenticated_only
-@auth.check_user_project_permission('project/get', ProjectPermissionTypes.Subscriber)
+@auth.check_user_project_permission('listener/project/disable', ProjectPermissionTypes.Subscriber)
 def on_listener_user_enable(project_id):
     leave_room('project#{}'.format(project_id))
