@@ -1,5 +1,5 @@
 from sqlalchemy import event
-from flask_socketio import emit
+from flask_socketio import emit,  join_room, leave_room
 from ..models import ProjectModel, DiagramModel, ProjectPermissionModel
 from ..utils.model_schemes import ProjectSchema, DiagramSchema, ProjectPermissionSchema
 from .. import uts
@@ -49,16 +49,13 @@ def diagram_delete_listener(mapper, connection, target):
 def project_permission_append_listener(mapper, connection, target):
     schema = ProjectPermissionSchema()
     result = schema.dump(target)
+
+    join_room('project#{}'.format(target.project_id), sid=uts[target.username])
+
     emit('listener/project/permission/inserted', {
         'project_id': target.project_id,
         'permission': result
     }, room='project#{}'.format(target.project_id))
-
-    if target.username in uts:
-        emit('listener/project/permission/inserted', {
-            'project_id': target.project_id,
-            'permission': result
-        }, room=uts[target.username])
 
 
 @event.listens_for(ProjectPermissionModel, 'after_update')
@@ -75,6 +72,9 @@ def project_permission_update_listener(mapper, connection, target):
 def project_permission_delete_listener(mapper, connection, target):
     schema = ProjectPermissionSchema()
     result = schema.dump(target)
+
+    leave_room('project#{}'.format(target.project_id), sid=uts[target.username])
+
     emit('listener/project/permission/deleted', {
         'project_id': target.project_id,
         'permission': result

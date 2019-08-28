@@ -40,8 +40,7 @@ def create_app(config_name):
 
     # import socket io events
     from .events import (auth, project, user,
-                         project_permission, models,
-                         listener, diagram)
+                         project_permission, models, diagram)
 
     # set jwt function which check that token is revoked
     from .services import token_blacklist
