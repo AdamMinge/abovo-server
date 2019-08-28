@@ -31,7 +31,7 @@ class ProjectPermissionModel(db.Model):
     username = db.Column(db.String, db.ForeignKey("Users.username"), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey("Projects.project_id"), nullable=False)
 
-    def __init__(self, type, username, project_id, type):
+    def __init__(self, type, username, project_id):
         self.type = type
         self.username = username
         self.project_id = project_id
