@@ -1,6 +1,6 @@
 from flask import request
 from flask_login import login_user, logout_user
-from flask_socketio import emit
+from flask_socketio import emit, join_room, leave_room
 from flask_login import current_user
 from ..models import UserModel
 from ..utils.model_schemes import UserSchema
@@ -49,6 +49,10 @@ def on_login(json=None):
 
                 uts[found_user.username] = request.sid
 
+                projects_collection = user.get_user_projects(found_user.username)
+                for project in projects_collection:
+                    join_room('project#{}'.format(project.project_id))
+
                 emit('login', {
                     'type': 'Success',
                     'message': 'Logged in as {}'.format(found_user.username),
@@ -69,6 +73,10 @@ def on_logout():
             'message': 'User {} has been logged out'.format(current_user.username),
             'user': result
         })
+
+        projects_collection = user.get_user_projects(current_user.username)
+        for project in projects_collection:
+            leave_room('project#{}'.format(project.project_id))
 
         logout_user()
     else:

@@ -30,10 +30,10 @@ def on_project_permissions_add(project_id, json=None):
         json = dict()
     try:
         permission_type = json['type']
-        diagram_name = json['username']
+        username = json['username']
         created_project_permission = project_permission.create_project_permission(
             permission_type=ProjectPermissionTypes.from_name(permission_type),
-            username=diagram_name,
+            username=username,
             project_id=project_id)
     except KeyError:
         message = {
@@ -44,6 +44,12 @@ def on_project_permissions_add(project_id, json=None):
         if 'name' not in json:
             message['message']['name'] = 'argument is required'
         emit('project/permissions/add', message)
+    except project_permission.ProjectPermissionAlreadyExist:
+        emit('project/permissions/add', {
+            'type': 'Failure',
+            'failure': 'ProjectPermissionAlreadyExist',
+            'message': 'Project permission for user {} and project {} already exist'
+             .format(json['username'], project_id)})
     else:
         schema = ProjectPermissionSchema()
         result = schema.dump(created_project_permission)
