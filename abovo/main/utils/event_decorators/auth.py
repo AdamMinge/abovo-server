@@ -1,7 +1,7 @@
 import functools
 from flask_login import current_user
 from flask_socketio import disconnect, emit
-from ...services import user, diagram, project_permission
+from ...services import user, diagram, project_permission, project
 
 
 def self_only(message):
@@ -9,7 +9,7 @@ def self_only(message):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             user_identity = current_user.username
-            if user_identity != kwargs['username']:
+            if user_identity != args[0]:
                 emit(message, {
                     'type': 'Failure',
                     'failure': 'PermissionDenied',
@@ -22,7 +22,7 @@ def self_only(message):
     return decorator
 
 
-def _get_project_id(**kwargs):
+def _get_project_id_for_diagram(**kwargs):
     project_id = None
     if 'project_id' in kwargs:
         project_id = kwargs['project_id']
@@ -40,13 +40,44 @@ def _get_project_id(**kwargs):
     return project_id
 
 
+def check_user_diagram_permission(message, min_permission):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            project_id = diagram.get_diagram(args[0]).project_id
+
+            if project_id is None:
+                emit(message, {
+                    'type': 'Failure',
+                    'failure': 'ProjectDoesNotExist',
+                    'message': 'project with this id does not exist'
+                })
+                return
+
+            have_permission = user.user_have_permission_for_project(
+                username=current_user.username,
+                project_id=project_id,
+                min_permission=min_permission)
+
+            if not have_permission:
+                emit(message, {
+                    'type': 'Failure',
+                    'failure': 'PermissionDenied',
+                    'message': 'Not permission to this project'
+                })
+            else:
+                return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
 def check_user_project_permission(message, min_permission):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            project_id = _get_project_id(**kwargs)
+            project_id = project.get_project(args[0]).project_id
 
-            if not project_id:
+            if project_id is None:
                 emit(message, {
                     'type': 'Failure',
                     'failure': 'ProjectDoesNotExist',
