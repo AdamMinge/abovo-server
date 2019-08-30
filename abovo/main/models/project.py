@@ -10,8 +10,8 @@ class ProjectModel(db.Model):
     creation_time = db.Column(db.DateTime, nullable=False)
     last_edition_time = db.Column(db.DateTime, nullable=False)
 
-    diagrams = db.relationship("DiagramModel")
-    project_permissions = db.relationship("ProjectPermissionModel")
+    diagrams = db.relationship("DiagramModel", backref='project')
+    project_permissions = db.relationship("ProjectPermissionModel", backref='project')
 
     @hybrid_property
     def display_name(self):

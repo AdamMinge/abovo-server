@@ -11,8 +11,6 @@ class DiagramModel(db.Model):
     last_edition_time = db.Column(db.DateTime, nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey("Projects.project_id"), nullable=False)
 
-    project = db.relationship('ProjectModel', foreign_keys=project_id)
-
     @hybrid_property
     def display_name(self):
         return self.name + '#{}'.format(self.diagram_id)
