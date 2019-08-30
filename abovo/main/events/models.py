@@ -2,6 +2,7 @@ from sqlalchemy import event
 from flask_socketio import emit,  join_room, leave_room
 from ..models import ProjectModel, DiagramModel, ProjectPermissionModel
 from ..utils.model_schemes import ProjectSchema, DiagramSchema, ProjectPermissionSchema
+from ..services import project
 from .. import uts
 
 
@@ -10,7 +11,6 @@ def project_update_listener(mapper, connection, target):
     schema = ProjectSchema()
     result = schema.dump(target)
     emit('listener/project/updated', {
-        'project_id': target.project_id,
         'project': result
     }, room='project#{}'.format(target.project_id))
 
@@ -20,7 +20,6 @@ def diagram_append_listener(mapper, connection, target):
     schema = DiagramSchema()
     result = schema.dump(target)
     emit('listener/project/diagram/inserted', {
-        'project_id': target.project_id,
         'diagram': result
     }, room='project#{}'.format(target.project_id))
 
@@ -30,7 +29,6 @@ def diagram_update_listener(mapper, connection, target):
     schema = DiagramSchema()
     result = schema.dump(target)
     emit('listener/project/diagram/updated', {
-        'project_id': target.project_id,
         'diagram': result
     }, room='project#{}'.format(target.project_id))
 
@@ -40,22 +38,29 @@ def diagram_delete_listener(mapper, connection, target):
     schema = DiagramSchema()
     result = schema.dump(target)
     emit('listener/project/diagram/deleted', {
-        'project_id': target.project_id,
         'diagram': result
     }, room='project#{}'.format(target.project_id))
 
 
 @event.listens_for(ProjectPermissionModel, 'after_insert')
 def project_permission_append_listener(mapper, connection, target):
-    schema = ProjectPermissionSchema()
-    result = schema.dump(target)
+    project_permission_schema = ProjectPermissionSchema()
+    project_permission_result = project_permission_schema.dump(target)
 
     join_room('project#{}'.format(target.project_id), sid=uts[target.username])
 
     emit('listener/project/permission/inserted', {
-        'project_id': target.project_id,
-        'permission': result
+        'permission': project_permission_result
     }, room='project#{}'.format(target.project_id))
+
+    if target.username in uts:
+        added_project = project.get_project(target.project_id)
+        project_schema = ProjectSchema()
+        project_result = project_schema.dump(added_project)
+
+        emit('listener/project/inserted', {
+            'project': project_result
+        }, room=uts[target.username])
 
 
 @event.listens_for(ProjectPermissionModel, 'after_update')
@@ -63,7 +68,6 @@ def project_permission_update_listener(mapper, connection, target):
     schema = ProjectPermissionSchema()
     result = schema.dump(target)
     emit('listener/project/permission/updated', {
-        'project_id': target.project_id,
         'permission': result
     }, room='project#{}'.format(target.project_id))
 
@@ -76,6 +80,14 @@ def project_permission_delete_listener(mapper, connection, target):
     leave_room('project#{}'.format(target.project_id), sid=uts[target.username])
 
     emit('listener/project/permission/deleted', {
-        'project_id': target.project_id,
         'permission': result
     }, room='project#{}'.format(target.project_id))
+
+    if target.username in uts:
+        added_project = project.get_project(target.project_id)
+        project_schema = ProjectSchema()
+        project_result = project_schema.dump(added_project)
+
+        emit('listener/project/deleted', {
+            'project': project_result
+        }, room=uts[target.username])

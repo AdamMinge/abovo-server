@@ -10,8 +10,8 @@ class UserModel(db.Model, UserMixin):
     password = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False)
 
-    permissions = db.relationship("ProjectPermissionModel")
-    tokens = db.relationship("TokenBlacklistModel")
+    permissions = db.relationship("ProjectPermissionModel", backref='user')
+    tokens = db.relationship("TokenBlacklistModel", backref='user')
 
     def __init__(self, username, password, email):
         self.username = username
