@@ -46,7 +46,7 @@ def on_project_diagrams_add(project_id, json=None):
 
         emit('project/diagrams/add', {
             'type': 'Success',
-            'project': result
+            'diagram': result
         })
 
 
