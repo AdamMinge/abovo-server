@@ -24,7 +24,7 @@ def on_project_permissions_get(project_id, json=None):
 
 @sio.on('project/permissions/add')
 @auth.authenticated_only
-@auth.check_user_project_permission('project/permissions/add', ProjectPermissionTypes.Subscriber)
+@auth.check_user_project_permission('project/permissions/add', ProjectPermissionTypes.Administrator)
 def on_project_permissions_add(project_id, json=None):
     if json is None:
         json = dict()
