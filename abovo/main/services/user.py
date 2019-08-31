@@ -60,7 +60,7 @@ def user_have_permission_for_project(username, project_id, min_permission=None):
                     .filter(ProjectPermissionModel.project_id == project_id,
                             ProjectPermissionModel.username == username,
                             ProjectPermissionModel.type.in_(
-                                ProjectPermissionTypes.permission_greater_or_equal(min_permission))).count() > 0
+                                ProjectPermissionTypes.permissions_greater_or_equal(min_permission))).count() > 0
     else:
         return db.session.query(ProjectPermissionModel) \
                    .filter(ProjectPermissionModel.project_id == project_id,
