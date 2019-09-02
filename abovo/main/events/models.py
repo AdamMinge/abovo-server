@@ -47,7 +47,8 @@ def project_permission_append_listener(mapper, connection, target):
     project_permission_schema = ProjectPermissionSchema()
     project_permission_result = project_permission_schema.dump(target)
 
-    join_room('project#{}'.format(target.project_id), sid=uts[target.username])
+    if target.username in uts:
+        join_room('project#{}'.format(target.project_id), sid=uts[target.username])
 
     emit('listener/project/permission/inserted', {
         'permission': project_permission_result
@@ -77,7 +78,8 @@ def project_permission_delete_listener(mapper, connection, target):
     schema = ProjectPermissionSchema()
     result = schema.dump(target)
 
-    leave_room('project#{}'.format(target.project_id), sid=uts[target.username])
+    if target.username in uts:
+        leave_room('project#{}'.format(target.project_id), sid=uts[target.username])
 
     emit('listener/project/permission/deleted', {
         'permission': result
