@@ -8,7 +8,7 @@ class ProjectPermissionTypes(OrderedEnum):
     Administrator = 3
 
     @classmethod
-    def permission_greater_or_equal(cls, permission):
+    def permissions_greater_or_equal(cls, permission):
         ans = []
         for name, member in cls.__members__.items():
             if member >= permission:

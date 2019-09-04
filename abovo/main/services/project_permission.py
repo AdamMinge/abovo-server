@@ -1,4 +1,4 @@
-from ..models import ProjectPermissionModel, ProjectModel, UserModel
+from ..models import ProjectPermissionModel, ProjectModel, UserModel, ProjectPermissionTypes
 from ..utils.exceptions import (ProjectPermissionDoesNotExist, ProjectDoesNotExist,
                                 UserDoesNotExist, ProjectPermissionAlreadyExist)
 from .. import db
@@ -44,7 +44,7 @@ def update_project_permission(project_permission_id, **kwargs):
     if not current_project_permission:
         raise ProjectPermissionDoesNotExist
     if 'type' in kwargs:
-        permission_type = ProjectPermissionModel.ProjectPermissionTypes.from_name(kwargs.get('type'))
+        permission_type = ProjectPermissionTypes.from_name(kwargs.get('type'))
         current_project_permission.type = permission_type
     db.session.commit()
     return current_project_permission
